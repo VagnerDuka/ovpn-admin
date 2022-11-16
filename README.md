@@ -172,3 +172,42 @@ Flags:
 ## Further information
 
 Please feel free to use [issues](https://github.com/flant/ovpn-admin/issues) and [discussions](https://github.com/flant/ovpn-admin/discussions) to get help from maintainers & community.
+
+## ROUTES
+iptables -t nat -F
+iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 1100:1199 -j DNAT --to-destination 10.10.0.101:1100-1199
+iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 1200:1299 -j DNAT --to-destination 10.10.0.102:1200-1299
+iptables -t nat -A PREROUTING -i eth0 -p tcp -m tcp --dport 1300:1399 -j DNAT --to-destination 10.10.0.103:1300-1399
+iptables -t nat -A POSTROUTING -j MASQUERADE
+
+# show rules
+iptables -t nat -L
+
+# flush rules
+iptables -t nat -F
+
+
+# apk add openvpn
+# create interface
+mkdir -p /dev/net
+mknod /dev/net/tun c 10 200
+chmod 600 /dev/net/tun
+
+mv config.ovpn openvpn.conf
+touch credential.txt 
+
+# descoment 
+script-security 2
+auth-user-pass credential.txt
+
+# running service
+service openvpn start
+sudo service openvpn@client start
+
+
+# docker attach
+docker exec -it openvpn bash
+tcpdump -i any -n port 8081
+
+
+
